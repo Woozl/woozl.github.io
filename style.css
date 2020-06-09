@@ -2,11 +2,7 @@ body {
     background-color: #fdc52c;
 }
 
-canvas {
-    position: absolute;
-}
-
-img {
+.dinkles {
     position: absolute;
     top: 50%; left: 50%;
     transform: scale(0.5, 0.5)
