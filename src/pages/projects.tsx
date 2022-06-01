@@ -30,7 +30,7 @@ interface Props {
 
 const Projects = ({ location, data }: Props) => {
     return (
-        <Layout location={location} pageTitle=''>
+        <Layout location={location} pageTitle='Projects'>
             <SEO title="Projects" article={false} />
             <div className={projectGrid}>
                 {

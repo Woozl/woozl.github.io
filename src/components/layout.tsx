@@ -1,6 +1,7 @@
 import { graphql, useStaticQuery } from 'gatsby';
 import * as React from 'react';
 import { container } from './layout.module.sass';
+import { Helmet } from 'react-helmet';
 
 import Navbar from './navbar';
 
@@ -25,7 +26,9 @@ const Layout = ({ location, pageTitle, children }: DataProps) => {
 
     return (
         <div className={container}>
-            <title>{`${pageTitle} | ${data.site.siteMetadata.title}`}</title>
+            <Helmet>
+                <title>{`${pageTitle} | ${data.site.siteMetadata.title}`}</title>
+            </Helmet>
             <Navbar></Navbar>
             <main>
                 {children}

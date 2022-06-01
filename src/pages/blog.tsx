@@ -26,7 +26,7 @@ interface Props {
 
 const Blog = ({ location, data }: Props) => {
   return (
-    <Layout location={location} pageTitle="">
+    <Layout location={location} pageTitle='Blog'>
         <SEO title="Blog" article={false} />
         {
           data.allMdx.nodes.map((node: Node) => (
