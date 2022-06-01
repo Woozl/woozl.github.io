@@ -29,7 +29,7 @@ const SEO = ({ title, description, image, article }: Props) => {
     };
 
     return (
-        <Helmet>
+        <Helmet htmlAttributes={{lang: `en`}}>
             <meta name="description" content={seo.description} />
 
             <meta name="image" content={seo.image} />

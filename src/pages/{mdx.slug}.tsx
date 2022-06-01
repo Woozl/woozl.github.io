@@ -20,7 +20,6 @@ interface Props {
                 thumb: any;
             }
             timeToRead: number;
-            tableOfContents: any;
             body: string;
         }
     }
@@ -64,7 +63,6 @@ export const query = graphql`
                 }
             }
             timeToRead
-            tableOfContents
             body
         }
     }

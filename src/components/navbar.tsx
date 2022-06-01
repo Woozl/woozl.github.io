@@ -14,7 +14,6 @@ const Navbar = () => {
             <ul>
                 <li><Link to='/blog'>blog</Link></li>
                 <li><Link to='/projects'>projects</Link></li>
-                {/* <li style={{cursor: "pointer", userSelect: "none"}} onClick={darkMode.toggle}>{darkMode.value ? "🌞":"🌚"}</li> */}
                 <li><button onClick={darkMode.toggle}>{darkMode.value ? "🌞":"🌚"}</button></li>
             </ul>
         </nav>
