@@ -43,6 +43,7 @@ const config: GatsbyConfig = {
     "gatsby-plugin-sharp",
     "gatsby-remark-images",
     "gatsby-plugin-use-dark-mode",
+    "gatsby-plugin-sitemap",
     {
       resolve: "gatsby-plugin-mdx",
       options: {
