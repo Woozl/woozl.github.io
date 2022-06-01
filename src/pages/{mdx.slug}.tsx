@@ -7,6 +7,7 @@ import CodeBlock from '../components/codeblock'
 import { titleHeader } from './post.module.sass'
 
 import 'katex/dist/katex.min.css';
+import SEO from '../components/seo';
 
 interface Props {
     location: Location;
@@ -15,6 +16,8 @@ interface Props {
             frontmatter: {
                 title: string;
                 date: string;
+                summary: string | null;
+                thumb: any;
             }
             timeToRead: number;
             tableOfContents: any;
@@ -26,6 +29,12 @@ interface Props {
 const BlogPost = ({ location, data }: Props) => {
     return (
         <Layout location={location} pageTitle={data.mdx.frontmatter.title}>
+            <SEO
+                title={data.mdx.frontmatter.title}
+                description={data.mdx.frontmatter.summary || undefined}
+                image={data.mdx.frontmatter.thumb?.childImageSharp.original.src}
+                article={true}
+            />
             <div className={titleHeader}>
                 <h1><i>{data.mdx.frontmatter.title}</i></h1>
                 <p>{`${data.mdx.frontmatter.date} • ${data.mdx.timeToRead} minute${data.mdx.timeToRead>1 ? "s" : ""}`}</p>
@@ -45,6 +54,14 @@ export const query = graphql`
             frontmatter {
                 title
                 date(formatString: "MMMM Do, YYYY")
+                summary
+                thumb {
+                    childImageSharp {
+                        original {
+                            src
+                        }
+                    }
+                }
             }
             timeToRead
             tableOfContents

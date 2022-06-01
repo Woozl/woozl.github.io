@@ -10,8 +10,10 @@ const config: GatsbyConfig = {
     },
     description: `All things software and web development`,
     siteUrl: `https://davidglymph.com`,
+    image: "/social-bg.png",
     social: {
-      github: `Woozl`
+      github: `Woozl`,
+      linkedin: `davidglymph`
     }
   },
   plugins: [
@@ -44,6 +46,7 @@ const config: GatsbyConfig = {
     "gatsby-remark-images",
     "gatsby-plugin-use-dark-mode",
     "gatsby-plugin-sitemap",
+    "gatsby-plugin-react-helmet",
     {
       resolve: "gatsby-plugin-mdx",
       options: {

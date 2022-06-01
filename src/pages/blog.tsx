@@ -2,6 +2,7 @@ import * as React from 'react';
 import { graphql, Link } from 'gatsby';
 import Layout from '../components/layout';
 import {blogPostCard} from './blog.module.sass';
+import SEO from '../components/seo';
 
 interface Node {
   frontmatter: {
@@ -26,6 +27,7 @@ interface Props {
 const Blog = ({ location, data }: Props) => {
   return (
     <Layout location={location} pageTitle="">
+        <SEO title="Blog" article={false} />
         {
           data.allMdx.nodes.map((node: Node) => (
             <article className={blogPostCard} key={node.id}>

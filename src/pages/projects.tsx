@@ -2,6 +2,7 @@ import { graphql, Link, PageProps } from 'gatsby';
 import { GatsbyImage, getImage } from 'gatsby-plugin-image';
 import * as React from 'react';
 import Layout from '../components/layout';
+import SEO from '../components/seo';
 import { projectGrid, infoContainer } from './projects.module.sass';
 
 interface Node {
@@ -30,6 +31,7 @@ interface Props {
 const Projects = ({ location, data }: Props) => {
     return (
         <Layout location={location} pageTitle=''>
+            <SEO title="Projects" article={false} />
             <div className={projectGrid}>
                 {
                   data.allMdx.nodes.map((node: Node) => {
