@@ -14,7 +14,7 @@ const Navbar = () => {
             <ul>
                 <li><Link to='/blog'>blog</Link></li>
                 <li><Link to='/projects'>projects</Link></li>
-                <li><button onClick={darkMode.toggle}>{darkMode.value ? "🌞":"🌚"}</button></li>
+                <li><button onClick={darkMode.toggle}>{darkMode.value ? "☀️":"🌙"}</button></li>
             </ul>
         </nav>
     )
