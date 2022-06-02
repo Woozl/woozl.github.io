@@ -43,7 +43,6 @@ const config: GatsbyConfig = {
     "gatsby-plugin-sass",
     "gatsby-plugin-image",
     "gatsby-plugin-sharp",
-    "gatsby-remark-images",
     "gatsby-plugin-use-dark-mode",
     "gatsby-plugin-sitemap",
     "gatsby-plugin-react-helmet",
@@ -58,7 +57,8 @@ const config: GatsbyConfig = {
             resolve: "gatsby-remark-images",
             options: {
               linkImagesToOriginal: false,
-              maxWidth: "672px"
+              maxWidth: "672px",
+              backgroundColor: "transparent"
             }
           },
           "gatsby-remark-autolink-headers",
