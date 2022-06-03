@@ -1,53 +1,16 @@
 ---
 title: "React Notes"
-date: 2022-05-21
+date: 2021-05-10
 summary: "Notes app written in React. Create, read, edit, delete and instantly search notes"
 link_to_demo: "https://davidglymph.com/react-notes"
 thumb: "./react-notes.png"
 thumb_alt: "A fountain pen laying on a notepad with the word \"Notes\" written on it"
 ---
 
-# A picture of notes!
 ![Notes](react-notes.png)
 
-```verilog
-module jsrflipflop(q,qbar,clk,rst,sr);
-	output reg q;
-	output qbar;
-	input clk, rst;
-	input [1:0] sr;
+[View source on Github](https://github.com/Woozl/react-notes)
 
-	assign qbar = ~q;
+[View demo](https://davidglymph.com/react-notes)
 
-	always @(posedge clk)
-	begin
-		if (rst)
-			q <= 0;
-		else
-			case(sr)
-				2'b00: q <= q;
-				2'b01: q <= 0;
-				2'b10: q <= 1;
-				2'b11: q <= 1'bx;
-			endcase
-	end
-endmodule
-```
-
-```tsx
-const Navbar = () => {
-    const darkMode = useDarkMode(true);
-
-    return (
-        <nav className={nav}>
-            {/* <h1><Link to='/'>David Glymph</Link></h1> */}
-            <Link style={{height: "3rem"}} to='/'><Icon fill={darkMode.value ? '#fff' : '#000'} ></Icon></Link>
-            <ul>
-                <li><Link to='/blog'>blog</Link></li>
-                <li><Link to='/projects'>projects</Link></li>
-                <li style={{cursor: "pointer", userSelect: "none"}} onClick={darkMode.toggle}>{darkMode.value ? "🌞":"🌚"}</li>
-            </ul>
-        </nav>
-    )
-};
-```
+Notes app built using React hooks utilizing dynamic component updates. Allows filtering based on search and stores last modification time.

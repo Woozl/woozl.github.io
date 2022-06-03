@@ -1,11 +1,16 @@
 ---
 title: "Tetris"
-date: 2022-05-27
-summary: "Tetris written in vanilla javascript using the HTML canvas API"
+date: 2021-07-08
+summary: "Tetris written in vanilla Javascript using the HTML canvas API"
 link_to_demo: "https://davidglymph.com/tetris"
 thumb: "./tetris.png"
 thumb_alt: "Tetris pieces"
 ---
 
-# Picture of tetris lmao
-![Mountains](tetris.png)
+![Tetris](tetris-full.png)
+
+[View source on Github](https://github.com/Woozl/tetris)
+
+[View demo](https://davidglymph.com/tetris)
+
+A clone of Tetris I wrote a while back. Quite a fun challenge to implement. Pieces are stored as arrays, checked against the game board to see if the requested move is legal, and added to the game board once any of their cells is in contact with another piece. As the game board is just a 2D array, checking for clearable rows is simple using `.includes()`. The scoring system is based off the original Tetris -- you get more points for clearing multiple rows at once. Based on the current level, the pieces drop faster and faster!
