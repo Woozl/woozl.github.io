@@ -1,0 +1,305 @@
+---
+title: "HTTPS API Fetch with Promises"
+date: "2022-06-21"
+summary: "Using promises to write readable, error handled API requests."
+---
+
+## Why use promises?
+Promises are a feature in Javascript that assist in handling asynchronous operations, especially multiple operations. Instead of using seperate callbacks functions for error and success states, use of promises leads to clearer control flow, less coupled code, and integrated error handling.
+
+## Writing a simple promise
+The Promise constructor has a callback function to handle the activities of the promise. This function is passed two arguments--a resolve function and a reject function. We can call resolve or reject when we have fulfilled or failed the promise.
+
+Have a look at a very basic promise:
+
+```ts
+let promise = new Promise((resolve, reject) => {
+    if(1 === 1)
+        resolve(`Success!`);
+    else
+        reject(`Error`);
+});
+```
+
+In the code above, we call resolve if `1===1` and reject if it does not. You will also notice that resolve and reject are called with a value. Lets see what happens with this value when we call the promise.
+
+```ts
+promise
+    .then(value => console.log(value))
+    .catch(value => console.log(value))
+```
+
+The value that was passed into the callback functions is provided in the then and catch statements on the promise. If we run this code, we get:
+
+```txt
+Success!
+```
+
+The benefit in writing asynchronous code like this is that multiple promises can be chained together and performed sequentially. Additionally, our error handling for all of the promises can be caught at the end of the chain.
+
+## Making a PB&J Sandwich
+
+Typically promises are not written as variables, but returned from a function. The following code demonstrates building a peanut butter and jelly sandwich using promises:
+
+### Running this code
+1. Make sure you have [Node](https://nodejs.dev/) and npm installed
+2. Download ts-node `npm i -g ts-node`
+3. Run the file `ts-node script.ts`
+
+> Note: I am using Typescript. If you are just using Javascript, you can remove the type annotations.
+
+```ts
+const haveBread = true;
+const havePB = true;
+const haveJelly = true;
+
+function getBread() {
+    return new Promise<string[]>((resolve, reject) => {
+        if(haveBread)
+            resolve(['bread', 'bread']);
+        else
+            reject('No bread!')
+    });
+}
+
+function putOnPeanutButter(sandwich: string[]) {
+    return new Promise<string[]>((resolve, reject) => {
+        if(havePB) {
+            sandwich.splice(1, 0, 'PB')
+            resolve(sandwich);
+        }
+        else
+            reject('No peanut butter!')
+    });
+}
+
+function putOnJelly(sandwich: string[]) {
+    return new Promise<string[]>((resolve, reject) => {
+        if(haveJelly) {
+            sandwich.splice(2, 0, 'jelly');
+            resolve(sandwich);
+        }
+        else
+            reject('No jelly!')
+    });
+}
+
+getBread()
+    .then(putOnPeanutButter)
+    .then(putOnJelly)
+    .then(console.log)
+    .catch(console.log);
+```
+
+When run, this code will print `[ 'bread', 'PB', 'jelly', 'bread' ]`. You can see how functions that return promises can improve the readability of the code. We simply chain `then` statements until we finish. Once the promise chain has finished, we can do whatever we wish with the value (here we simply pass it to `console.log`).
+
+Additionally, if there is any error in the chain, the chain breaks and goes to the catch statement. Try changing the boolean values at the top of the script. Whichever promise fails first passes it's `reject` value to the catch function.
+
+This is a good example showing chained promises, but this code is not asynchronous. All of the operations used in constructing the sandwich are fast and could be implemented using normal, synchronous code. Promises really shine in cases where code takes much longer to run, such as waiting for a response from a database, or downloading an image from a website. Promises allow the rest of our code to keep running, and only be interrupted once the promise has been resolved. If you are interested in learning more about how Javascript processes instructions and events, I recommend you read about the [event loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop).
+
+## Fetching data from an API with HTTPS GET request
+To demonstrate a real world use case of promises, lets write some code that gets JSON from an HTTPS address.
+
+There is a list of free public APIs on [this Github repository](https://github.com/public-apis/public-apis). For this example, I decided to use Mojang's API to download a Minecraft skin. The way the code should work, the user should provide their username, and the image of their profile's skin should be downloaded.
+
+This [website](https://mojang-api-docs.netlify.app/index.html) provides some documentation for Mojang's APIs. There isn't a single endpoint that gets the skin image from the username, so we first have to get the users UUID, and then get the profile from that. The profile will contain the url to the skin. So the order of operations is
+
+Username -> UUID -> Profile -> Image URL -> Download Image
+
+All of the operations are GET requests, meaning we don't have to pass a header, we just put the information we want in the requested URL.
+
+### Getting the UUID from the Username
+Making a GET request to the following address with a valid username returns a JSON object with the name and id parameters:
+
+```txt
+GET https://api.mojang.com/users/profiles/minecraft/{username}
+```
+
+There are lots of different methods of making https requests. If you are running code in a browser, you can use the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch). Since I am using Node, I decided to use the built in `https`/`http` standard libraries, but there are plenty of libraries to use, such as `node-fetch` and `axios`.
+
+Using the `https` library to GET an object looks like this:
+```ts
+import https from 'https';
+
+https.get('https://api.mojang.com/users/profiles/minecraft/WoozleG', res => {
+    let chunk = '';
+    res.on('data', data => chunk += data);
+    res.on('end', () => console.log(JSON.parse(chunk)));
+}).on('error', console.log);
+```
+Which prints:
+```txt
+{ name: 'WoozleG', id: '95724006d8a7469ca90e77e026d95541' }
+```
+
+A couple things to note:
+- The data stream is continuously added to the chunk variable and then dealt with once the stream has ended.
+- We have to parse the chunk into a valid JSON object to access the properities on it.
+- The error is logged if there is anything wrong with the request.
+
+Now, lets promisify it and add some additional features: 
+```ts
+function getUuid(profileName: string) {
+    const getUuidUrl = (profileName: string) => `https://api.mojang.com/users/profiles/minecraft/${profileName}`;
+    
+    return new Promise<string>((resolve, reject) => {
+        https.get(getUuidUrl(profileName), response => {
+            if(response.statusCode === 200) {
+                let chunk = '';
+                response.on('data', data => chunk += data);
+                response.on('end', () => resolve(JSON.parse(chunk).id));
+            }
+            else {
+                reject(`UUID fetch was invalid with status code ${response.statusCode}`);
+            }
+        }).on('error', reject);
+    });
+}
+```
+
+Now the request is a function called `getUuid` that returns a promise. The helper function `getUuidUrl` takes a profile name string and returns the the correct URL string. Now that our HTTPS request is inside a promise, all of our error cases are handled with `reject`. For example, if there was an error with the request, or the response returned a status code other than 200 (OK). Also, now we are using the `resolve` method to pass on the `id` property of our JSON object to the next promise in the chain.
+
+Now we can call:
+```ts
+getUuid('WoozleG')
+    .then(console.log)
+    .catch(console.log);
+```
+The value of the resolve function (the UUID) is passed to the `console.log` function in `then`. However, if we input an invalid username, Mojang's server will return a status code other than 200, and our reject function will pass it's value to the log function in the `catch`, returning...
+
+```txt
+UUID fetch was invalid with status code 204
+```
+
+## Getting the Profile from the UUID
+Now that we have the UUID, we can request the users profile information from a different HTTPS endpoint. This time we can make a GET request to the following address:
+
+```txt
+https://sessionserver.mojang.com/session/minecraft/profile/{UUID}
+```
+
+Passing in a valid UUID returns a JSON object that looks like this:
+```json
+{
+  "id" : "95724006d8a7469ca90e77e026d95541",
+  "name" : "WoozleG",
+  "properties" : [ {
+    "name" : "textures",
+    "value" : "ewogICJ0aW1lc3RhbXAiIDogMTY1NTkxMzQ4MjExOSwKICAicHJvZmlsZUlkIiA6ICI5NTcyNDAwNmQ4YTc0NjljYTkwZTc3ZTAyNmQ5NTU0MSIsCiAgInByb2ZpbGVOYW1lIiA6ICJXb296bGVHIiwKICAidGV4dHVyZXMiIDogewogICAgIlNLSU4iIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzdjYThiMTk2Y2NjZWM5Y2U1MDU5MmRiMWJiNTA4OGY3ZDAwMDM4MTNmZDU5ZTVmNzhlMTcxMmY0MjhlNTZiN2EiCiAgICB9LAogICAgIkNBUEUiIDogewogICAgICAidXJsIiA6ICJodHRwOi8vdGV4dHVyZXMubWluZWNyYWZ0Lm5ldC90ZXh0dXJlLzIzNDBjMGUwM2RkMjRhMTFiMTVhOGIzM2MyYTdlOWUzMmFiYjIwNTFiMjQ4MWQwYmE3ZGVmZDYzNWNhN2E5MzMiCiAgICB9CiAgfQp9"
+  } ]
+}
+```
+
+The long string for `value` is a base64 encoded JSON object that contains the picture information we need to get the skin. We will come back to that in the next step, first let's write another function to get this data. It will look almost identical to the `getUuid` function:
+
+```ts
+function getProfile(uuid: string) {
+    const getProfileUrl = (uuid: string) => `https://sessionserver.mojang.com/session/minecraft/profile/${uuid}`;
+
+    return new Promise((resolve, reject) => {
+        https.get(getProfileUrl(uuid), response => {
+            if(response.statusCode === 200) {
+                let chunk = '';
+                response.on('data', data => chunk += data);
+                response.on('end', () => resolve(JSON.parse(chunk)));
+            }
+            else {
+                reject(`Profile fetch was invalid with status code ${response.statusCode}`);
+            }
+        }).on('error', reject);
+    });
+}
+```
+
+## Getting the skin URL from the encoded string
+Now that we have the profile object, we need to decode the long string into another JSON object. Thankfully, Node has a standard object called `Buffer` that can be used to do different types of encoding and decoding on data streams. The specific type of encoding used is base64, which is pretty common for data transmission over networks. You can read more about it [here](https://developer.mozilla.org/en-US/docs/Glossary/Base64).
+
+In the example from the previous section, the long string decoded looks like this:
+```json
+{
+  "timestamp" : 1655914887815,
+  "profileId" : "95724006d8a7469ca90e77e026d95541",
+  "profileName" : "WoozleG",
+  "textures" : {
+    "SKIN" : {
+      "url" : "http://textures.minecraft.net/texture/7ca8b196cccec9ce50592db1bb5088f7d0003813fd59e5f78e1712f428e56b7a"
+    },
+    "CAPE" : {
+      "url" : "http://textures.minecraft.net/texture/2340c0e03dd24a11b15a8b33c2a7e9e32abb2051b2481d0ba7defd635ca7a933"
+    }
+  }
+}
+```
+We only need the `textures.SKIN.url` and `profileName`.
+
+The following code creates a new Buffer with the decoded data, and then converts it to a string representation, which is then parsed into an actual JSON object.
+
+```ts
+function saveSkin(profile: any) {
+    const textureObjectBuffer = Buffer.from(profile.properties[0].value, 'base64url');
+    const textureObject = JSON.parse(textureObjectBuffer.toString('ascii'));
+
+    const profileName = textureObject.profileName;
+    const skinUrl = textureObject.textures.SKIN.url;
+
+    return downloadImageFromUrl(skinUrl, `./${profileName}.png`);
+}
+```
+
+We then grab the `profileName` and `skinUrl` from the object. Then another promise is returned by `downloadImageFromUrl`, which saves the image from the URL into a file in the same directory with the profile name.
+
+## Download the Image from the URL
+Lets finish by implementing the `downloadImageFromUrl` function. This function returns a promise that resolves when the image has finished downloading. Once again, this code is almost identical to the previous HTTPS requests:
+
+```ts
+function downloadImageFromUrl(url: string, filepath: string) {
+    return new Promise((resolve, reject) => {
+        http.get(url, response => {
+            if(response.statusCode === 200)
+                response.pipe(fs.createWriteStream(filepath))
+                .on('error', reject)
+                .on('close', () => resolve(`File saved to ${filepath}`));
+            
+            else
+                response.resume()
+                .on('end', () => reject(`Downloading image failed with status code ${response.statusCode}`));
+            
+        }).on('error', reject);
+    });
+}
+```
+
+> Note that this function uses HTTP instead of HTTPS. For some reason, Mojang's texture URLs are all unsecured. Otherwise, the code is no different than using HTTPS.
+
+The main difference in this code is that instead of storing the data in variable and converting it to JSON, we continuously `pipe` the data into a new file. This is done with the standard Node library `fs`. By calling `response.pipe(fs.createWriteStream(filepath))`, we take the data as it is being downloaded and put it on our local machine at `filepath`.
+
+## Bringing it all together
+Finally, we can use all of our functions to write a promise chain:
+
+```ts
+getUuid("WoozleG")
+    .then(getProfile)
+    .then(saveSkin)
+    .then(console.log)
+    .catch(console.log);
+```
+
+The last promise, `saveSkin` resolves with the message `File saved to ./WoozleG.png`, if successful. If we open up the file, we can see the downloaded skin!
+
+![Minecraft Skin](WoozleG.png)
+
+### Code
+You can view all the code together [here](https://gist.github.com/Woozl/fff1065677ec8c7c5c8da3556ee9a439). I set it up so that you can call it from the command line like so:
+
+```
+ts-node download-minecraft-skin.ts {USERNAME}
+```
+
+*Make sure you have `ts-node` installed globally!*
+
+## References
+- [Promises - MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises)
+- [Unofficial Mojang API documentation](https://mojang-api-docs.netlify.app/index.html)
+- [Making HTTP requests with Node](https://nodejs.dev/learn/making-http-requests-with-nodejs)
+- [Decode base64 with Node](https://stackoverflow.com/questions/14573001/nodejs-how-to-decode-base64-encoded-string-back-to-binary)
+- [Download images with Node](https://scrapingant.com/blog/download-image-javascript)
