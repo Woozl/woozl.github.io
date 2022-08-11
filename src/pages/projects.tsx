@@ -48,7 +48,9 @@ const Projects = ({ location, data }: Props) => {
                                   <p>{node.frontmatter.date}</p>
                                 </div>
                                 <p>{node.frontmatter.summary}</p>
-                                <a href={node.frontmatter.link_to_demo} target="_blank" rel="noopener noreferrer">View demo</a>
+                                {node.frontmatter.link_to_demo === '' ? 
+                                  null : <a href={node.frontmatter.link_to_demo} target="_blank" rel="noopener noreferrer">View demo</a>
+                                }
                               </div>
                           </section>
                       );
