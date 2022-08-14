@@ -45,6 +45,7 @@ const config: GatsbyConfig = {
     "gatsby-plugin-sharp",
     "gatsby-plugin-use-dark-mode",
     "gatsby-plugin-sitemap",
+    'gatsby-plugin-robots-txt',
     "gatsby-plugin-react-helmet",
     {
       resolve: "gatsby-plugin-mdx",
