@@ -123,10 +123,16 @@ body.dark-mode a
 
 body.light-mode a
     color: $text-light
+    svg
+        fill: $text-light
     &:hover
         color: $acc-light
+        svg
+            fill: $acc-light
     &:active
         color: $acc-dark
+        svg
+            fill: $acc-dark
 
 ::selection
     color: #3b3407
