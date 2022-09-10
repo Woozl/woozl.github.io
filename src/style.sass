@@ -110,10 +110,16 @@ body.light-mode
 
 body.dark-mode a
     color: $text-dark
+    svg
+        fill: $text-dark
     &:hover
         color: $acc-dark
+        svg
+            fill: $acc-dark
     &:active
         color: $acc-light
+        svg
+            fill: $acc-light
 
 body.light-mode a
     color: $text-light
@@ -125,6 +131,8 @@ body.light-mode a
 ::selection
     color: #3b3407
     background-color: #ffee83
+    text-fill-color: #3b3407
+    -webkit-text-fill-color: #3b3407
 
 ::-webkit-scrollbar
     width: 10px
