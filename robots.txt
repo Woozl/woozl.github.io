@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://davidglymph.com/sitemap/sitemap-index.xml
+Host: https://davidglymph.com
